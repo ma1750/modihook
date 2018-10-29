@@ -29,8 +29,8 @@ async def handle_url(url):
     if res:
         if last_modified.get(url) and last_modified[url] < res:
             await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
-        else:
-            last_modified[url] = res
+        
+        last_modified[url] = res
 
 async def post_webhook(url, res, hook):
     payload = {
