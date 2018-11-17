@@ -28,8 +28,10 @@ async def head(url):
 async def handle_url(url):
     res = await head(url)
     if res:
-        if last_modified.get(url) and last_modified[url] < res:
-            await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
+        if last_modified.get(url):
+            delta = res - last_modified[url]
+            if delta.seconds > 1800:
+                await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
         
         last_modified[url] = res
 
