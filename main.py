@@ -7,8 +7,9 @@ from config import Config
 
 loop = asyncio.get_event_loop()
 session = ClientSession()
-webhooks = Config(__file__, 'webhooks.json').get('webhooks')
-urls = Config(__file__, 'urls.json').get('urls')
+config = Config(__file__, 'config.json')
+webhooks = config.get('webhooks')
+urls = config.get('urls')
 
 last_modified = {}
 jst = timezone(timedelta(hours=+9), 'JST')
