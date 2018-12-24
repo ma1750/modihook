@@ -44,10 +44,10 @@ async def post_webhook(url, res, hook):
             print(f'Failed to POST {hook}')
 
 async def run():
-    print(f'Checking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
-    await asyncio.wait([handle_url(url) for url in urls])
-    await asyncio.sleep(300)
-    await run()
+    while True:
+        print(f'Checking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
+        await asyncio.wait([handle_url(url) for url in urls])
+        await asyncio.sleep(300)
 
 if __name__ == '__main__':
     loop.create_task(run())
