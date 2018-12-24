@@ -50,7 +50,7 @@ async def run():
     while True:
         print(f'\nChecking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
         await asyncio.wait([handle_url(url) for url in urls])
-        await asyncio.sleep(3)
+        await asyncio.sleep(300)
 
 if __name__ == '__main__':
     # loop.set_debug(True)
