@@ -15,15 +15,18 @@ last_modified = {}
 jst = timezone(timedelta(hours=+9), 'JST')
 
 async def head(url):
-    async with session.head(url) as res:
-        modified = res.headers.get('Last-Modified')
-        if modified:
-            modified_time = datetime.strptime(modified, '%a, %d %b %Y %H:%M:%S GMT').replace(tzinfo=timezone.utc)
-            print(f'{modified_time.astimezone(jst).strftime("%Y/%m/%d %H:%M")} : {url}')
-            return modified_time
-        else:
-            print(f'{url} {res.status}: {res.reason}')
-            return None
+    try:
+        async with session.head(url) as res:
+            modified = res.headers.get('Last-Modified')
+            if modified:
+                modified_time = datetime.strptime(modified, '%a, %d %b %Y %H:%M:%S GMT').replace(tzinfo=timezone.utc)
+                print(f'{modified_time.astimezone(jst).strftime("%Y/%m/%d %H:%M")} : {url}')
+                return modified_time
+            else:
+                print(f'No Last-Modified found for {url}')
+                return None
+    except:
+        print(f'Failed to get {url}')
 
 async def handle_url(url):
     res = await head(url)
@@ -47,9 +50,10 @@ async def run():
     while True:
         print(f'\nChecking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
         await asyncio.wait([handle_url(url) for url in urls])
-        await asyncio.sleep(300)
+        await asyncio.sleep(3)
 
 if __name__ == '__main__':
+    # loop.set_debug(True)
     loop.create_task(run())
     print('Started')
     try:
