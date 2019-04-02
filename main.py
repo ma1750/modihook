@@ -5,6 +5,9 @@ from aiohttp import ClientSession
 from config import Config
 
 
+IGNORE_MODIFY = 1800
+REFRESH_INTERVAL = 300
+
 loop = asyncio.get_event_loop()
 session = ClientSession()
 config = Config(__file__, 'config.json')
@@ -33,7 +36,7 @@ async def handle_url(url):
     if res:
         if last_modified.get(url):
             delta = res - last_modified[url]
-            if delta.total_seconds() > 1800:
+            if delta.total_seconds() > IGNORE_MODIFY:
                 await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
         
         last_modified[url] = res
@@ -47,10 +50,11 @@ async def post_webhook(url, res, hook):
             print(f'Failed to POST {hook}')
 
 async def run():
-    while True:
+    await asyncio.sleep(REFRESH_INTERVAL)
+    asyncio.ensure_future(run())
+    if urls:
         print(f'\nChecking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
         await asyncio.wait([handle_url(url) for url in urls])
-        await asyncio.sleep(300)
 
 if __name__ == '__main__':
     # loop.set_debug(True)
