@@ -43,16 +43,19 @@ async def diff(url):
             if last_modified.get(url):
                 delta = res - last_modified[url]
                 if delta.total_seconds() > IGNORE_MODIFY:
-                    await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
+                    if webhooks:
+                        await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
             
             last_modified[url] = res
         elif isinstance(res, str):
             res = re.sub(r' +', ' ', (re.sub(r'\n+', '\n', res)))
+            # TODO: diff
             changed = difflib.ndiff(previous_text[url].splitlines(keepends=True), res.splitlines(keepends=True))
             for line in changed:
                 if ' ' not in line[0]:
-                    await asyncio.wait([post_webhook(url, datetime.now(), hook) for hook in webhooks])
-                    break
+                    if webhooks:
+                        await asyncio.wait([post_webhook(url, datetime.now(), hook) for hook in webhooks])
+                        break
                     
             previous_text[url] = res
 
