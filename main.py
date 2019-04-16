@@ -37,7 +37,8 @@ async def handle_url(url):
         if last_modified.get(url):
             delta = res - last_modified[url]
             if delta.total_seconds() > IGNORE_MODIFY:
-                await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
+                if webhooks:
+                    await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
         
         last_modified[url] = res
 
