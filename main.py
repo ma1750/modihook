@@ -49,12 +49,20 @@ async def post_webhook(url, res, hook):
         if not resp.status == 200:
             print(f'Failed to POST {hook}')
 
-async def run():
-    await asyncio.sleep(REFRESH_INTERVAL)
-    asyncio.ensure_future(run())
+async def refresh():
     if urls:
         print(f'\nChecking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
         await asyncio.wait([handle_url(url) for url in urls])
+
+async def schedule():
+    await asyncio.sleep(REFRESH_INTERVAL)
+    asyncio.ensure_future(schedule())
+    await refresh()
+
+async def run():
+    asyncio.ensure_future(schedule())
+    await refresh()
+
 
 if __name__ == '__main__':
     # loop.set_debug(True)
