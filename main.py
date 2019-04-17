@@ -49,13 +49,13 @@ async def diff(url):
             last_modified[url] = res
         elif isinstance(res, str):
             res = re.sub(r' +', ' ', (re.sub(r'\n+', '\n', res)))
-            # TODO: diff
-            changed = difflib.ndiff(previous_text[url].splitlines(keepends=True), res.splitlines(keepends=True))
-            for line in changed:
-                if ' ' not in line[0]:
-                    if webhooks:
-                        await asyncio.wait([post_webhook(url, datetime.now(), hook) for hook in webhooks])
-                        break
+            if previous_text.get(url):
+                changed = difflib.ndiff(previous_text[url].splitlines(keepends=True), res.splitlines(keepends=True))
+                for line in changed:
+                    if ' ' not in line[0]:
+                        if webhooks:
+                            await asyncio.wait([post_webhook(url, datetime.now(), hook) for hook in webhooks])
+                            break
                     
             previous_text[url] = res
 
