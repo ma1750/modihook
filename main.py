@@ -31,20 +31,20 @@ async def head(url):
     except:
         print(f'Failed to get {url}')
 
-async def handle_url(url):
+async def handle_url(title, url):
     res = await head(url)
     if res:
         if last_modified.get(url):
             delta = res - last_modified[url]
             if delta.total_seconds() > IGNORE_MODIFY:
                 if webhooks:
-                    await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
+                    await asyncio.wait([post_webhook(title, url, res, hook) for hook in webhooks])
         
         last_modified[url] = res
 
-async def post_webhook(url, res, hook):
+async def post_webhook(title, url, res, hook):
     payload = {
-        'content': f'Modify detected!\n{res.astimezone(jst).strftime("%Y/%m/%d %H:%M")}\n{url}'
+        'content': f'Modied: {title}\n{res.astimezone(jst).strftime("%Y/%m/%d %H:%M")}\n{url}'
     }
     async with session.post(hook, json=payload) as resp:
         if not resp.status == 200:
@@ -53,7 +53,7 @@ async def post_webhook(url, res, hook):
 async def refresh():
     if urls:
         print(f'\nChecking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
-        await asyncio.wait([handle_url(url) for url in urls])
+        await asyncio.wait([handle_url(title, url) for title, url in urls.items()])
 
 async def schedule():
     await asyncio.sleep(REFRESH_INTERVAL)
