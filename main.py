@@ -36,7 +36,7 @@ async def fetch(url):
     except:
         print(f'Failed to get {url}')
 
-async def diff(url):
+async def diff(title, url):
     res = await fetch(url)
     if res:
         if isinstance(res, datetime):
@@ -44,7 +44,7 @@ async def diff(url):
                 delta = res - last_modified[url]
                 if delta.total_seconds() > IGNORE_MODIFY:
                     if webhooks:
-                        await asyncio.wait([post_webhook(url, res, hook) for hook in webhooks])
+                        await asyncio.wait([post_webhook(title, url, res, hook) for hook in webhooks])
             
             last_modified[url] = res
         elif isinstance(res, str):
@@ -54,23 +54,23 @@ async def diff(url):
                 for line in changed:
                     if ' ' not in line[0]:
                         if webhooks:
-                            await asyncio.wait([post_webhook(url, datetime.now(), hook) for hook in webhooks])
+                            await asyncio.wait([post_webhook(title, url, datetime.now(), hook) for hook in webhooks])
                             break
                     
             previous_text[url] = res
 
-async def post_webhook(url, res, hook):
+async def post_webhook(title, url, res, hook):
     payload = {
-        'content': f'Modify detected!\n{res.astimezone(jst).strftime("%Y/%m/%d %H:%M")}\n{url}'
+        'content': f'Modied: {title}\n{res.astimezone(jst).strftime("%Y/%m/%d %H:%M")}\n{url}'
     }
     async with session.post(hook, json=payload) as resp:
-        if not resp.status == 200:
-            print(f'Failed to POST {hook}')
+        if not resp.status in [200, 201, 204]:
+            print(f'Failed to POST {hook}\nstatus code:{resp.status}')
 
 async def refresh():
     if urls:
         print(f'\nChecking: {datetime.now().strftime("%Y/%m/%d %H:%M")}')
-        await asyncio.wait([diff(url) for url in urls])
+        await asyncio.wait([diff(title, url) for title, url in urls.items()])
 
 async def schedule():
     await asyncio.sleep(REFRESH_INTERVAL)
