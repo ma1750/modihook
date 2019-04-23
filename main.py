@@ -47,7 +47,7 @@ async def post_webhook(title, url, res, hook):
         'content': f'Modied: {title}\n{res.astimezone(jst).strftime("%Y/%m/%d %H:%M")}\n{url}'
     }
     async with session.post(hook, json=payload) as resp:
-        if not resp.status == 200:
+        if not resp.status in [200, 201, 204]:
             print(f'Failed to POST {hook}')
 
 async def refresh():
