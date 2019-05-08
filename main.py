@@ -55,7 +55,7 @@ async def diff(title, url):
                     if ' ' not in line[0]:
                         if webhooks:
                             await asyncio.wait([post_webhook(title, url, datetime.now(), hook) for hook in webhooks])
-                            break
+                        break
                     
             previous_text[url] = res
 
