@@ -1,8 +1,8 @@
 {
-    "urls": [
-
-    ],
+    "urls": {
+        "title": "https://example.com"
+    },
     "webhooks": [
-        
+        "https://example.com"
     ]
 }
