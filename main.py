@@ -32,7 +32,7 @@ async def fetch(url):
             else:
                 print(f'"Last-Modified" element does not exsist for {url}')
                 soup = BeautifulSoup(await res.text(), 'html.parser')
-                return soup.text
+                return soup.get_text()
     except:
         print(f'Failed to get {url}')
 
